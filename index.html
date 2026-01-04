@@ -782,6 +782,42 @@
             background-color: white;
         }
         
+        /* زر إعادة الضبط في التبويب 1 */
+        .simple-converter-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .simple-converter-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 180px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .simple-converter-btn.convert {
+            background: var(--success-color);
+            color: white;
+            border: 3px solid #2ecc71;
+        }
+        
+        .simple-converter-btn.reset {
+            background: var(--primary-color);
+            color: white;
+            border: 3px solid #c0392b;
+        }
+        
         /* تحسينات للهواتف */
         @media (max-width: 768px) {
             .app-title {
@@ -851,6 +887,14 @@
             }
             
             .adjustment-option {
+                min-width: 100%;
+            }
+            
+            .simple-converter-buttons {
+                flex-direction: column;
+            }
+            
+            .simple-converter-btn {
                 min-width: 100%;
             }
         }
@@ -946,7 +990,36 @@
             <div class="converter-input-group">
                 <label class="converter-label" id="amountLabel">المبلغ المراد تحويله:</label>
                 <input type="number" class="converter-input" id="amount" 
-                       placeholder="أدخل المبلغ هنا" min="0" step="1" inputmode="numeric">
+                       placeholder="أدخل المبلغ هنا" min="0" step="1" inputmode="numeric" value="">
+            </div>
+            
+            <div class="converter-input-group" id="adjustmentSection" style="display: none;">
+                <label class="converter-label">طريقة جبر الباقي:</label>
+                <div class="adjustment-options">
+                    <div class="adjustment-option up selected" data-adjustment="up">
+                        <div class="adjustment-icon">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="adjustment-title">الجبر بالزيادة</div>
+                        <div class="adjustment-desc">إضافة باقي المبلغ لأقرب فئة</div>
+                    </div>
+                    <div class="adjustment-option down" data-adjustment="down">
+                        <div class="adjustment-icon">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="adjustment-title">الجبر بالنقصان</div>
+                        <div class="adjustment-desc">إزالة باقي المبلغ لأقرب فئة</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="simple-converter-buttons">
+                <button class="simple-converter-btn convert" onclick="calculateSimple()">
+                    <i class="fas fa-sync-alt"></i> تحويل
+                </button>
+                <button class="simple-converter-btn reset" onclick="resetTab1()">
+                    <i class="fas fa-trash-alt"></i> إعادة ضبط
+                </button>
             </div>
             
             <div class="converter-result">
@@ -961,16 +1034,17 @@
             <div class="info-box">
                 <h3><i class="fas fa-lightbulb"></i> معلومة مهمة:</h3>
                 <p>معادلة التحويل: 100 ليرة قديمة = 1 ليرة جديدة</p>
-                <p>التطبيق يعمل بدون إنترنت ويحفظ آخر عملية تحويل</p>
+                <p>لا توجد فواصل عشرية في الليرات الجديدة</p>
+                <p>التطبيق يعمل بدون إنترنت</p>
             </div>
         </div>
     </div>
     
-    <!-- محتوى التبويب 2: حاسبة المدخرات -->
+    <!-- محتوى التبويب 2: حاسبة الكبار -->
     <div class="tab-content" id="tab2">
         <div class="content-card">
             <h2 class="section-title">
-                <i class="fas fa-calculator"></i> حاسبة تفصيلية للعملات المدخره
+                <i class="fas fa-calculator"></i> حاسبة تفصيلية للعملات
             </h2>
             
             <div class="columns-container">
@@ -995,7 +1069,7 @@
                 <button class="action-btn calculate-btn" onclick="calculateTotals()">
                     <i class="fas fa-sync-alt"></i> احسب الإجمالي
                 </button>
-                <button class="action-btn reset-btn" onclick="resetAll()">
+                <button class="action-btn reset-btn" onclick="resetTab2()">
                     <i class="fas fa-trash-alt"></i> إعادة ضبط
                 </button>
             </div>
@@ -1010,7 +1084,7 @@
                     </div>
                     <div class="final-value-box">
                         <div class="final-value-label">الليرات الجديدة:</div>
-                        <div class="final-value-number" id="finalNew">0.00</div>
+                        <div class="final-value-number" id="finalNew">0</div>
                         <div class="final-value-words" id="finalNewWords">صفر ليرة فقط</div>
                     </div>
                 </div>
@@ -1036,7 +1110,7 @@
             <div class="converter-input-group">
                 <label class="converter-label">المبلغ المراد تحويله:</label>
                 <input type="number" class="converter-input" id="mixedAmount" 
-                       min="0" step="1" placeholder="أدخل المبلغ هنا" value="12500">
+                       min="0" step="1" placeholder="أدخل المبلغ هنا" value="">
             </div>
             
             <div class="converter-input-group">
@@ -1073,9 +1147,14 @@
                 </div>
             </div>
             
-            <button class="convert-main-btn" id="convertMixedBtn">
-                <i class="fas fa-sync-alt"></i> مزج المبلغ
-            </button>
+            <div class="simple-converter-buttons">
+                <button class="simple-converter-btn convert" onclick="convertMixedAmount()">
+                    <i class="fas fa-sync-alt"></i> مزج المبلغ
+                </button>
+                <button class="simple-converter-btn reset" onclick="resetTab3()">
+                    <i class="fas fa-trash-alt"></i> إعادة ضبط
+                </button>
+            </div>
             
             <div class="remainder-display" id="remainderDisplay">
                 <div class="remainder-title">
@@ -1093,14 +1172,14 @@
                 <div class="result-header">
                     <div>
                         <div style="color: #7f8c8d; font-size: 0.9rem;">المبلغ المدخل</div>
-                        <div class="total-amount" id="inputMixedAmount">12,500</div>
+                        <div class="total-amount" id="inputMixedAmount">0</div>
                     </div>
                     <div>
                         <i class="fas fa-arrow-right" style="font-size: 1.5rem; color: var(--accent-color);"></i>
                     </div>
                     <div>
                         <div style="color: #7f8c8d; font-size: 0.9rem;">المبلغ بعد الجبر</div>
-                        <div class="total-amount" id="adjustedMixedAmount">125.00</div>
+                        <div class="total-amount" id="adjustedMixedAmount">0</div>
                     </div>
                 </div>
                 
@@ -1139,7 +1218,7 @@
     
     <!-- تذييل الصفحة -->
     <footer class="app-footer">
-        <p>By: Mohamad Yamen AL Mohamad</p>
+        <p>تطبيق حاسبة الليرة السورية الشاملة - يعمل بدون إنترنت</p>
         <p>yamenmohamad@gmail.com</p>
     </footer>
     
@@ -1154,18 +1233,32 @@
         // ===== متغيرات عامة للتطبيق =====
         let deferredPrompt;
         let currentTab = 'tab1';
+        let lastActiveTab = 'tab1';
+        
+        // إعدادات الجبر للتبويب 1
+        let simpleConverterAdjustment = 'up';
         
         // ===== إدارة التبويبات =====
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // إذا كان نفس التبويب، لا تفعل شيئاً
+                if (tabId === currentTab) return;
+                
+                // تفريغ التبويب السابق
+                resetTabOnLeave(lastActiveTab);
+                
                 // إزالة النشاط من جميع التبويبات
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
                 // إضافة النشاط للتبويب المحدد
                 this.classList.add('active');
-                const tabId = this.getAttribute('data-tab');
                 document.getElementById(tabId).classList.add('active');
+                
+                // تحديث التبويبات النشطة
+                lastActiveTab = currentTab;
                 currentTab = tabId;
                 
                 // حفظ التبويب النشط في الذاكرة المحلية
@@ -1173,8 +1266,82 @@
             });
         });
         
-        // ===== التبويب 1: حاسبة التحويل البسيطة =====
-        // دوال التحويل والتحويل إلى كلمات (نفس الدوال الأصلية)
+        // ===== دوال تفريغ التبويبات عند المغادرة =====
+        function resetTabOnLeave(tabId) {
+            switch(tabId) {
+                case 'tab1':
+                    resetTab1();
+                    break;
+                case 'tab2':
+                    resetTab2();
+                    break;
+                case 'tab3':
+                    resetTab3();
+                    break;
+            }
+        }
+        
+        // ===== دوال إعادة الضبط لكل تبويب =====
+        function resetTab1() {
+            document.getElementById('amount').value = '';
+            document.getElementById('resultDigits').innerHTML = 'أدخل المبلغ لعرض نتيجة التحويل';
+            document.getElementById('resultWords').innerHTML = 'سيظهر المبلغ كتابةً هنا';
+            
+            // إعادة ضبط الجبر للقيمة الافتراضية
+            simpleConverterAdjustment = 'up';
+            document.querySelectorAll('#adjustmentSection .adjustment-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if(opt.getAttribute('data-adjustment') === 'up') {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            // إخفاء قسم الجبر
+            document.getElementById('adjustmentSection').style.display = 'none';
+        }
+        
+        function resetTab2() {
+            quantities = {
+                old: Array(currencyData.old.length).fill(0),
+                new: Array(currencyData.new.length).fill(0)
+            };
+            
+            // تحديث العرض
+            currencyData.old.forEach((_, index) => updateDisplay('old', index));
+            currencyData.new.forEach((_, index) => updateDisplay('new', index));
+            
+            // إعادة ضبط النتائج
+            document.getElementById('finalOld').textContent = '0';
+            document.getElementById('finalNew').textContent = '0';
+            document.getElementById('finalOldWords').textContent = 'صفر ليرة فقط';
+            document.getElementById('finalNewWords').textContent = 'صفر ليرة فقط';
+        }
+        
+        function resetTab3() {
+            document.getElementById('mixedAmount').value = '';
+            document.getElementById('remainderDisplay').style.display = 'none';
+            document.getElementById('mixedResultBox').style.display = 'none';
+            
+            // إعادة ضبط إلى القيم الافتراضية
+            selectedMixedCurrencyType = 'old';
+            selectedAdjustment = 'up';
+            
+            document.querySelectorAll('.currency-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if(opt.getAttribute('data-type') === 'old') {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            document.querySelectorAll('.adjustment-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if(opt.getAttribute('data-adjustment') === 'up') {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+        
+        // ===== التبويب 1: حاسبة التحويل البسيطة مع الجبر =====
         function numberToArabicWords(num) {
             if (num === 0) return "صفر";
             
@@ -1289,16 +1456,35 @@
         function updateLabels() {
             const conversionType = document.getElementById('conversionType').value;
             const label = document.getElementById('amountLabel');
+            const adjustmentSection = document.getElementById('adjustmentSection');
             
             if (conversionType === 'oldToNew') {
                 label.textContent = 'المبلغ المراد تحويله (الليرات القديمة):';
                 document.getElementById('amount').placeholder = 'أدخل عدد الليرات القديمة';
+                // إظهار قسم الجبر فقط للتحويل من قديم إلى جديد
+                adjustmentSection.style.display = 'block';
             } else {
                 label.textContent = 'المبلغ المراد تحويله (الليرات الجديدة):';
                 document.getElementById('amount').placeholder = 'أدخل عدد الليرات الجديدة';
+                // إخفاء قسم الجبر للتحويل من جديد إلى قديم
+                adjustmentSection.style.display = 'none';
             }
-            
-            calculateSimple();
+        }
+        
+        // تهيئة أحداث الجبر للتبويب 1
+        function initSimpleConverterAdjustment() {
+            document.querySelectorAll('#adjustmentSection .adjustment-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('#adjustmentSection .adjustment-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    simpleConverterAdjustment = option.getAttribute('data-adjustment');
+                    
+                    // إذا كان هناك مبلغ، أعد حساب النتيجة
+                    if (document.getElementById('amount').value) {
+                        calculateSimple();
+                    }
+                });
+            });
         }
         
         function calculateSimple() {
@@ -1314,60 +1500,106 @@
                 return;
             }
             
-            let convertedAmount;
-            let fromCurrencyIsOld, toCurrencyIsOld;
+            let originalAmount = amount;
+            let adjustedAmount = amount;
+            let adjustmentAmount = 0;
+            let hasAdjustment = false;
             
+            // التحويل من قديم إلى جديد مع الجبر
             if (conversionType === 'oldToNew') {
-                convertedAmount = amount / 100;
-                fromCurrencyIsOld = true;
-                toCurrencyIsOld = false;
+                const remainder = amount % 100;
+                
+                if (remainder > 0) {
+                    hasAdjustment = true;
+                    
+                    if (simpleConverterAdjustment === 'up') {
+                        // الجبر بالزيادة
+                        adjustmentAmount = 100 - remainder;
+                        adjustedAmount = amount + adjustmentAmount;
+                    } else {
+                        // الجبر بالنقصان
+                        adjustmentAmount = remainder;
+                        adjustedAmount = amount - adjustmentAmount;
+                    }
+                }
+                
+                // التحويل إلى جديد (بدون فواصل عشرية)
+                let convertedAmount = Math.floor(adjustedAmount / 100);
+                
+                // تنسيق الأرقام
+                const formattedOriginal = originalAmount.toLocaleString('ar-EG');
+                const formattedAdjusted = adjustedAmount.toLocaleString('ar-EG');
+                const formattedConverted = convertedAmount.toLocaleString('ar-EG');
+                
+                // تحويل الأرقام إلى كلمات
+                let originalInWords = numberToArabicWords(originalAmount) + ' ليرة سورية قديمة';
+                let adjustedInWords = numberToArabicWords(adjustedAmount) + ' ليرة سورية قديمة';
+                let convertedInWords = numberToArabicWords(convertedAmount) + ' ليرة سورية جديدة';
+                
+                // عرض النتيجة
+                if (hasAdjustment) {
+                    resultDigitsDiv.innerHTML = `
+                        <div style="margin-bottom: 10px; font-size: 1.2rem;">${formattedOriginal} ليرة قديمة</div>
+                        <div style="font-size: 1rem; margin: 5px 0; color: ${simpleConverterAdjustment === 'up' ? '#27ae60' : '#e74c3c'};">
+                            <i class="fas fa-${simpleConverterAdjustment === 'up' ? 'arrow-up' : 'arrow-down'}"></i>
+                            تم الجبر ${simpleConverterAdjustment === 'up' ? 'بالزيادة' : 'بالنقصان'} بمقدار ${adjustmentAmount.toLocaleString()} ليرة قديمة
+                        </div>
+                        <div style="font-size: 1rem; margin: 5px 0;">أصبح: ${formattedAdjusted} ليرة قديمة</div>
+                        <div style="font-size: 1.5rem; margin: 10px 0; color: var(--accent-color);">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div style="margin-top: 10px; color: var(--primary-color); font-size: 1.5rem;">${formattedConverted} ليرة جديدة</div>
+                    `;
+                    
+                    resultWordsDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;"><strong>${originalInWords}</strong></div>
+                        <div style="margin: 5px 0; font-size: 0.9rem; color: ${simpleConverterAdjustment === 'up' ? '#27ae60' : '#e74c3c'}">
+                            تم الجبر ${simpleConverterAdjustment === 'up' ? 'بالزيادة' : 'بالنقصان'} بمقدار ${numberToArabicWords(adjustmentAmount)} ليرة قديمة
+                        </div>
+                        <div style="margin: 5px 0;"><strong>${adjustedInWords}</strong></div>
+                        <div style="margin: 10px 0; font-size: 1rem; color: #7f8c8d;">تساوي</div>
+                        <div style="margin-top: 10px;"><strong>${convertedInWords}</strong></div>
+                    `;
+                } else {
+                    resultDigitsDiv.innerHTML = `
+                        <div style="margin-bottom: 10px; font-size: 1.2rem;">${formattedOriginal} ليرة قديمة</div>
+                        <div style="font-size: 1.5rem; margin: 10px 0; color: var(--accent-color);">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div style="margin-top: 10px; color: var(--primary-color); font-size: 1.5rem;">${formattedConverted} ليرة جديدة</div>
+                    `;
+                    
+                    resultWordsDiv.innerHTML = `
+                        <div style="margin-bottom: 10px;"><strong>${originalInWords}</strong></div>
+                        <div style="margin: 10px 0; font-size: 1rem; color: #7f8c8d;">تساوي</div>
+                        <div style="margin-top: 10px;"><strong>${convertedInWords}</strong></div>
+                    `;
+                }
             } else {
-                convertedAmount = amount * 100;
-                fromCurrencyIsOld = false;
-                toCurrencyIsOld = true;
-            }
-            
-            // تنسيق الأرقام
-            const formattedAmount = amount.toLocaleString('ar-EG');
-            const formattedConvertedAmount = convertedAmount.toLocaleString('ar-EG', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2
-            });
-            
-            // تحويل الأرقام إلى كلمات
-            let amountInWords = numberToArabicWords(amount);
-            let convertedAmountInWords = numberToArabicWords(convertedAmount);
-            
-            // الحصول على اسم العملة المناسب
-            let fromCurrencyName = getCurrencyName(amount, fromCurrencyIsOld);
-            let toCurrencyName = getCurrencyName(convertedAmount, toCurrencyIsOld);
-            
-            // إضافة العملة للنهاية
-            amountInWords = amountInWords + ' ' + fromCurrencyName;
-            convertedAmountInWords = convertedAmountInWords + ' ' + toCurrencyName;
-            
-            // عرض النتيجة بالأرقام
-            resultDigitsDiv.innerHTML = `
-                <div style="margin-bottom: 10px; font-size: 1.2rem;">${formattedAmount} ${fromCurrencyName}</div>
-                <div style="font-size: 1.5rem; margin: 10px 0; color: var(--accent-color);">
-                    <i class="fas fa-arrow-down"></i>
-                </div>
-                <div style="margin-top: 10px; color: var(--primary-color); font-size: 1.5rem;">${formattedConvertedAmount} ${toCurrencyName}</div>
-            `;
-            
-            // عرض النتيجة بالكلمات
-            resultWordsDiv.innerHTML = `
-                <div style="margin-bottom: 10px;"><strong>${amountInWords}</strong></div>
-                <div style="margin: 10px 0; font-size: 1rem; color: #7f8c8d;">تساوي</div>
-                <div style="margin-top: 10px;"><strong>${convertedAmountInWords}</strong></div>
-            `;
-            
-            // حفظ آخر قيمة في الذاكرة المحلية
-            try {
-                localStorage.setItem('lastAmount', amount);
-                localStorage.setItem('lastConversionType', conversionType);
-            } catch (e) {
-                console.log('لا يمكن حفظ البيانات في الذاكرة المحلية');
+                // التحويل من جديد إلى قديم (لا يوجد جبر هنا)
+                let convertedAmount = amount * 100;
+                
+                // تنسيق الأرقام
+                const formattedOriginal = amount.toLocaleString('ar-EG');
+                const formattedConverted = convertedAmount.toLocaleString('ar-EG');
+                
+                // تحويل الأرقام إلى كلمات
+                let originalInWords = numberToArabicWords(amount) + ' ليرة سورية جديدة';
+                let convertedInWords = numberToArabicWords(convertedAmount) + ' ليرة سورية قديمة';
+                
+                resultDigitsDiv.innerHTML = `
+                    <div style="margin-bottom: 10px; font-size: 1.2rem;">${formattedOriginal} ليرة جديدة</div>
+                    <div style="font-size: 1.5rem; margin: 10px 0; color: var(--accent-color);">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div style="margin-top: 10px; color: var(--primary-color); font-size: 1.5rem;">${formattedConverted} ليرة قديمة</div>
+                `;
+                
+                resultWordsDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;"><strong>${originalInWords}</strong></div>
+                    <div style="margin: 10px 0; font-size: 1rem; color: #7f8c8d;">تساوي</div>
+                    <div style="margin-top: 10px;"><strong>${convertedInWords}</strong></div>
+                `;
             }
         }
         
@@ -1458,53 +1690,10 @@
             }
         }
         
-        function convertUnder1000(n) {
-            if (n === 0) return '';
-            
-            const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
-            const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-            const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
-            const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
-            
-            let result = '';
-            
-            // المئات
-            if (n >= 100) {
-                const hundredsPart = Math.floor(n / 100);
-                result = hundreds[hundredsPart];
-                n %= 100;
-                if (n > 0) {
-                    result += ' و';
-                }
-            }
-            
-            // العشرات والآحاد
-            if (n > 0) {
-                if (n >= 10 && n <= 19) {
-                    result += teens[n - 10];
-                } else {
-                    const unitsPart = n % 10;
-                    const tensPart = Math.floor(n / 10);
-                    
-                    if (unitsPart > 0 && tensPart > 0) {
-                        result += units[unitsPart] + ' و' + tens[tensPart];
-                    } else if (unitsPart > 0) {
-                        result += units[unitsPart];
-                    } else if (tensPart > 0) {
-                        result += tens[tensPart];
-                    }
-                }
-            }
-            
-            return result;
-        }
-        
         function numberToArabicWordsDetailed(num) {
             if (num === 0) return "صفر ليرة فقط";
             
-            // تحويل إلى عدد صحيح
             const integerPart = Math.floor(num);
-            const decimalPart = Math.round((num - integerPart) * 100);
             
             // قوائم الكلمات
             const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
@@ -1523,10 +1712,9 @@
                 } else if (millionsPart === 2) {
                     result += 'مليونان ';
                 } else if (millionsPart > 2 && millionsPart < 11) {
-                    // تحويل الجزء الأول من الملايين
-                    result += convertUnder1000(millionsPart) + ' ملايين ';
+                    result += units[millionsPart] + ' ملايين ';
                 } else {
-                    result += convertUnder1000(millionsPart) + ' مليوناً ';
+                    result += numberToArabicWords(millionsPart) + ' مليوناً ';
                 }
                 n %= 1000000;
                 if (n > 0) result += 'و ';
@@ -1542,15 +1730,36 @@
                 } else if (thousandsPart > 2 && thousandsPart < 11) {
                     result += units[thousandsPart] + ' آلاف ';
                 } else {
-                    result += convertUnder1000(thousandsPart) + ' ألفاً ';
+                    result += numberToArabicWords(thousandsPart) + ' ألفاً ';
                 }
                 n %= 1000;
                 if (n > 0) result += 'و ';
             }
             
-            // إضافة الجزء المتبقي (أقل من 1000)
+            // المئات
+            if (n >= 100) {
+                const hundredsPart = Math.floor(n / 100);
+                result += hundreds[hundredsPart] + ' ';
+                n %= 100;
+                if (n > 0) result += 'و ';
+            }
+            
+            // العشرات والآحاد
             if (n > 0) {
-                result += convertUnder1000(n);
+                if (n >= 10 && n <= 19) {
+                    result += teens[n - 10] + ' ';
+                } else {
+                    const unitsPart = n % 10;
+                    const tensPart = Math.floor(n / 10);
+                    
+                    if (unitsPart > 0 && tensPart > 0) {
+                        result += units[unitsPart] + ' و' + tens[tensPart] + ' ';
+                    } else if (unitsPart > 0) {
+                        result += units[unitsPart] + ' ';
+                    } else if (tensPart > 0) {
+                        result += tens[tensPart] + ' ';
+                    }
+                }
             }
             
             // إضافة العملة
@@ -1562,11 +1771,6 @@
                 result += ' ليرات';
             } else {
                 result += ' ليرة';
-            }
-            
-            // إضافة الكسور إذا وجدت
-            if (decimalPart > 0) {
-                result += ' فاصلة ' + convertUnder1000(decimalPart);
             }
             
             return result.trim() + ' فقط';
@@ -1587,7 +1791,7 @@
             });
             
             // التحويل بين العملات
-            const oldInNew = totalOld / 100;
+            const oldInNew = Math.floor(totalOld / 100); // بدون فواصل عشرية
             const newInOld = totalNew * 100;
             
             // الإجماليات النهائية
@@ -1596,29 +1800,16 @@
             
             // تحديث العرض بالأرقام الإنجليزية
             document.getElementById('finalOld').textContent = formatNumber(finalOld);
-            document.getElementById('finalNew').textContent = finalNew.toFixed(2);
+            document.getElementById('finalNew').textContent = formatNumber(finalNew);
             
-            // تحديث العرض بالكلمات العربية المحسنة
+            // تحديث العرض بالكلمات العربية
             document.getElementById('finalOldWords').textContent = numberToArabicWordsDetailed(finalOld);
-            document.getElementById('finalNewWords').textContent = numberToArabicWordsDetailed(parseFloat(finalNew.toFixed(2)));
-        }
-        
-        function resetAll() {
-            quantities.old = Array(currencyData.old.length).fill(0);
-            quantities.new = Array(currencyData.new.length).fill(0);
-            
-            currencyData.old.forEach((_, index) => updateDisplay('old', index));
-            currencyData.new.forEach((_, index) => updateDisplay('new', index));
-            
-            document.getElementById('finalOld').textContent = '0';
-            document.getElementById('finalNew').textContent = '0.00';
-            document.getElementById('finalOldWords').textContent = 'صفر ليرة فقط';
-            document.getElementById('finalNewWords').textContent = 'صفر ليرة فقط';
+            document.getElementById('finalNewWords').textContent = numberToArabicWordsDetailed(finalNew);
         }
         
         // ===== التبويب 3: مزج العملات =====
         let selectedMixedCurrencyType = 'old';
-        let selectedAdjustment = 'up'; // 'up' أو 'down'
+        let selectedAdjustment = 'up';
         
         function initMixedConverter() {
             // اختيار نوع العملة
@@ -1638,9 +1829,6 @@
                     selectedAdjustment = option.getAttribute('data-adjustment');
                 });
             });
-            
-            // زر التحويل
-            document.getElementById('convertMixedBtn').addEventListener('click', convertMixedAmount);
             
             // السماح بالضغط على زر Enter
             document.getElementById('mixedAmount').addEventListener('keyup', (event) => {
@@ -1705,7 +1893,6 @@
             let newCoinsResult = {};
             
             // نبدأ بالعملات الجديدة الكبيرة (حولها إلى قيمة قديمة)
-            // نحول قيم العملات الجديدة إلى قديمة (نضرب في 100)
             let newCoinsConverted = currencyData.new.map(coin => ({
                 name: coin.name,
                 value: coin.value * 100,
@@ -1779,16 +1966,13 @@
                 remainderDisplay.style.display = 'block';
                 
                 let adjustmentText = '';
-                let adjustmentClass = '';
                 
                 if (result.adjustmentType === 'up') {
                     adjustmentText = `تم جبر الباقي بالزيادة بمقدار ${result.adjustmentAmount.toLocaleString()} ليرة قديمة`;
-                    adjustmentClass = 'up';
                     document.getElementById('remainderAmount').textContent = `+${result.adjustmentAmount.toLocaleString()} ليرة قديمة`;
                     document.getElementById('remainderAmount').style.color = 'var(--success-color)';
                 } else {
                     adjustmentText = `تم جبر الباقي بالنقصان بمقدار ${result.adjustmentAmount.toLocaleString()} ليرة قديمة`;
-                    adjustmentClass = 'down';
                     document.getElementById('remainderAmount').textContent = `-${result.adjustmentAmount.toLocaleString()} ليرة قديمة`;
                     document.getElementById('remainderAmount').style.color = 'var(--primary-color)';
                 }
@@ -1806,7 +1990,7 @@
             // عرض المبالغ في المربع الرئيسي
             if (result.originalType === 'old') {
                 document.getElementById('inputMixedAmount').textContent = `${result.originalAmount.toLocaleString()} ليرة قديمة`;
-                document.getElementById('adjustedMixedAmount').textContent = `${(result.adjustedAmountInOld / 100).toLocaleString()} ليرة جديدة`;
+                document.getElementById('adjustedMixedAmount').textContent = `${Math.floor(result.adjustedAmountInOld / 100).toLocaleString()} ليرة جديدة`;
             } else {
                 document.getElementById('inputMixedAmount').textContent = `${result.originalAmount.toLocaleString()} ليرة جديدة`;
                 document.getElementById('adjustedMixedAmount').textContent = `${result.adjustedAmountInOld.toLocaleString()} ليرة قديمة`;
@@ -1872,7 +2056,7 @@
         function formatNumber(num) {
             return num.toLocaleString('en-US', {
                 minimumFractionDigits: 0,
-                maximumFractionDigits: 2
+                maximumFractionDigits: 0
             });
         }
         
@@ -1935,23 +2119,9 @@
             }
             
             // تهيئة التبويب 1
-            try {
-                const lastAmount = localStorage.getItem('lastAmount');
-                const lastConversionType = localStorage.getItem('lastConversionType');
-                
-                if (lastAmount) {
-                    document.getElementById('amount').value = lastAmount;
-                }
-                
-                if (lastConversionType) {
-                    document.getElementById('conversionType').value = lastConversionType;
-                }
-            } catch (e) {
-                console.log('لا يمكن قراءة البيانات من الذاكرة المحلية');
-            }
-            
             document.getElementById('conversionType').addEventListener('change', updateLabels);
             document.getElementById('amount').addEventListener('input', calculateSimple);
+            initSimpleConverterAdjustment();
             
             // تحديث أولي للتبويب 1
             updateLabels();
@@ -1961,9 +2131,6 @@
             
             // تهيئة التبويب 3
             initMixedConverter();
-            
-            // تحويل مثال عند التحميل للتبويب 3
-            convertMixedAmount();
             
             // منع سلوك التحديث عند السحب لأسفل على الهواتف
             let startY;
