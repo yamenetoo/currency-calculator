@@ -1395,7 +1395,7 @@
                 } else if (thousandsPart > 2 && thousandsPart < 11) {
                     result += numberToArabicWords(thousandsPart) + ' آلاف ';
                 } else {
-                    result += numberToArabicWords(thousandsPart) + ' ألفاً ';
+                    result += numberToArabicWords(thousandsPart) + ' ألف  ';
                 }
                 n %= 1000;
                 if (n > 0) result += 'و ';
@@ -1730,7 +1730,7 @@
                 } else if (thousandsPart > 2 && thousandsPart < 11) {
                     result += units[thousandsPart] + ' آلاف ';
                 } else {
-                    result += numberToArabicWords(thousandsPart) + ' ألفاً ';
+                    result += numberToArabicWords(thousandsPart) + ' ألف  ';
                 }
                 n %= 1000;
                 if (n > 0) result += 'و ';
@@ -2163,5 +2163,6 @@
     </script>
 </body>
 </html>
+
 
 
