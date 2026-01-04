@@ -2,7 +2,7 @@
   "name": "حاسبة الليرة السورية",
   "short_name": "حاسبة الليرة",
   "description": "حاسبة شاملة لليرة السورية - تحويل، حساب، ومزج العملات",
-  "start_url": "/syrian-currency-calculator/",
+  "start_url": "/currency-calculator/",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#e74c3c",
